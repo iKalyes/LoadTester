@@ -1,0 +1,18 @@
+SET(SOURCES screens/ui_Main.c
+    ui.c
+    components/ui_comp_hook.c
+    ui_helpers.c
+    ui_events.c
+    images/ui_img_281677161.c
+    images/ui_img_1403710832.c
+    images/ui_img_1082144145.c
+    images/ui_img_lucide_plug_png.c
+    images/ui_img_2018925606.c
+    fonts/ui_font_ASCII18.c
+    fonts/ui_font_ASCII48.c
+    fonts/ui_font_ASCII72.c
+    fonts/ui_font_CHN16.c
+    fonts/ui_font_CHN18.c
+    fonts/ui_font_CHN24.c)
+
+add_library(ui ${SOURCES})

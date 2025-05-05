@@ -1,0 +1,16 @@
+{
+  "codename": "ASCII72",
+  "ttf_path": "/assets/SarasaMonoSC-Bold.ttf",
+  "bin_path": "/assets/ui_font_ASCII72.bin",
+  "c_path": "/assets/ui_font_ASCII72.c",
+  "cfg_path": "/assets/ui_font_ASCII72.fcfg",
+  "size": 72,
+  "bpp": 4,
+  "letters": 0,
+  "ranges": [
+    "0x20-0x7f"
+  ],
+  "symbols": "串并联",
+  "customparams": "--no-compress --no-prefilter",
+  "uploaded": false
+}

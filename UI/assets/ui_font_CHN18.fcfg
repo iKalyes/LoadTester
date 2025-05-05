@@ -1,0 +1,16 @@
+{
+  "codename": "CHN18",
+  "ttf_path": "/assets/SarasaMonoSC-Bold.ttf",
+  "bin_path": "/assets/ui_font_CHN18.bin",
+  "c_path": "/assets/ui_font_CHN18.c",
+  "cfg_path": "/assets/ui_font_CHN18.fcfg",
+  "size": 18,
+  "bpp": 4,
+  "letters": 0,
+  "ranges": [
+    "0x20-0x7f"
+  ],
+  "symbols": "通断测试元件测量负载网络故障距离控制程序点频扫串口",
+  "customparams": "--no-compress --no-prefilter",
+  "uploaded": false
+}

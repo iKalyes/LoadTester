@@ -1,0 +1,16 @@
+{
+  "codename": "CHN24",
+  "ttf_path": "/assets/SarasaMonoSC-Bold.ttf",
+  "bin_path": "/assets/ui_font_CHN24.bin",
+  "c_path": "/assets/ui_font_CHN24.c",
+  "cfg_path": "/assets/ui_font_CHN24.fcfg",
+  "size": 24,
+  "bpp": 4,
+  "letters": 5,
+  "ranges": [
+    "0x20-0x7f"
+  ],
+  "symbols": "通断测试元件测量负载网络故障距离未连接已串口",
+  "customparams": "--no-compress --no-prefilter",
+  "uploaded": false
+}
