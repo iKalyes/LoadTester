@@ -53,7 +53,37 @@ void loop1()
         }
         break;
     case 1: // 元件测量
+        if (RUNSTOP == true)
+        {
+            // 如果连接已建立，可以发送命令
+            if (SerialMaster_IsConnected()) {
+            static unsigned long lastActionTime = 0;
+            static int commandState = 0; // 0: 准备发送第一条命令, 1: 等待发送第二条命令
+            unsigned long currentTime = millis();
+    
+            switch (commandState) {
+            case 0: // 准备发送第一条命令
+                if (currentTime - lastActionTime > DDS_SweepFreqTimems + 1000) {  // 间隔1秒发送第一条命令
+                SerialMaster_SendCommand("SET_SWEEP 1 1000 100000");
+                lastActionTime = currentTime;
+                commandState = 1;
+            }   
+            break;
+        
+            case 1: // 检查第一条命令
+                if (SerialMaster_IsCommandSuccessful()) {
+                lastActionTime = currentTime;
+                commandState = 0;
+            }
+            break;
+            }
+            }
+        }
 
+        else
+        {
+
+        }
         break;
     case 2: // 负载网络
 

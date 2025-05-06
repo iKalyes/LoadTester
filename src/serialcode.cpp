@@ -68,17 +68,14 @@ void SerialMaster_ProcessReceivedData(const String &data) {
     
     // 处理连接相关的消息
     if (data == "ConnectionCheck" && hostState == HOST_DISCONNECTED) {
-        Serial.println("收到连接请求，发送响应");
         Serial2.print("ConnectionResponse\n");
         hostState = HOST_WAIT_CONNECTED;
     }
     else if (data == "Connected" && hostState == HOST_WAIT_CONNECTED) {
-        Serial.println("连接成功建立!");
         hostState = HOST_CONNECTED;
     }
     // 处理断开连接消息
     else if (data == "Disconnected" && hostState == HOST_CONNECTED) {
-        Serial.println("从机已断开连接!");
         // 重置状态为未连接
         hostState = HOST_DISCONNECTED;
         isCommandPending = false;
@@ -87,7 +84,6 @@ void SerialMaster_ProcessReceivedData(const String &data) {
     // 处理命令响应
     else if (hostState == HOST_CONNECTED) {
         if (data == "SET_FREQ") {
-            Serial.println("频率命令处理成功");
             isCommandPending = false;
             pendingCommandResponse = "ProcessSuccess";
         }
@@ -97,16 +93,12 @@ void SerialMaster_ProcessReceivedData(const String &data) {
             if (spaceIndex > 0 && spaceIndex < data.length() - 1) {
                 String timeValue = data.substring(spaceIndex + 1);
                 DDS_SweepFreqTimems = (uint16_t)timeValue.toInt();
-                Serial.print("获取到扫频时间值: ");
-                Serial.println(DDS_SweepFreqTimems);
             }
             
-            Serial.println("扫频命令处理成功");
             isCommandPending = false;
             pendingCommandResponse = "ProcessSuccess";
         }
         else if (data == "SET_Failed") {
-            Serial.println("命令处理失败");
             isCommandPending = false;
             pendingCommandResponse = "ProcessFailed";
         }
@@ -133,7 +125,6 @@ void SerialMaster_Update() {
         case HOST_CONNECTED:
             // 检查命令响应超时
             if (isCommandPending && currentTime - lastCommandTime > COMMAND_TIMEOUT) {
-                Serial.println("命令响应超时");
                 isCommandPending = false;
             }
             break;
@@ -158,7 +149,6 @@ void SerialMaster_Update() {
  */
 void SerialMaster_Disconnect() {
     if (hostState == HOST_CONNECTED) {
-        Serial.println("断开连接");
         hostState = HOST_DISCONNECTED;
     }
 }

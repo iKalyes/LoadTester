@@ -171,6 +171,7 @@ void ADS122C04_DATA_REFRESH()
       lv_chart_set_next_value(ui_VoltageChart, VoltageChart, voltage_full);
 
       LineMode_Distance = (LineMode_Volt_Avg - 0.5955) / 0.012;
+      
       LineMode_Volt_full = round(LineMode_Distance * 100);
       LineMode_Volt_int = LineMode_Volt_full / 100;
       LineMode_Volt_frac = LineMode_Volt_full % 100;

@@ -1,7 +1,7 @@
   // 如果连接已建立，可以发送命令
   if (SerialMaster_IsConnected()) {
     static unsigned long lastActionTime = 0;
-    static int commandState = 0; // 0: 准备发送第一条命令, 1: 等待发送第二条命令, 2: 命令执行完毕
+    static int commandState = 0; // 0: 准备发送第一条命令, 1: 等待发送第二条命令
     unsigned long currentTime = millis();
     
     switch (commandState) {
@@ -14,23 +14,12 @@
         }
         break;
         
-      case 1: // 检查第一条命令并准备发送第二条命令
+      case 1: // 检查第一条命令
         if (SerialMaster_IsCommandSuccessful()) {
           Serial.println("第一条命令执行成功");
-          //if (currentTime - lastActionTime > 1000) {  // 成功后再等待1秒发送第二条命令
-            //Serial.println("发送第二条命令");
-            //SerialMaster_SendCommand("SET_SWEEP 3 50000 512");
             lastActionTime = currentTime;
             commandState = 0;
-          //}
-        }
-        break;
-        
-      case 2: // 检查第二条命令
-        if (SerialMaster_IsCommandSuccessful()) {
-          Serial.println("第二条命令执行成功");
-          commandState = 0;  // 重置状态，准备下一轮命令发送
-          lastActionTime = currentTime;  // 重置时间
+          }
         }
         break;
     }
