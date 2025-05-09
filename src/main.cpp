@@ -6,8 +6,6 @@ static float capacitorCalibLarge = 1.18;   // 800nF以上的校准系数
 static float capacitorCalibMedium = 1.12;  // 380nF-800nF的校准系数
 static float capacitorCalibSmall = 1.085;  // 380nF以下的校准系数
 
-static float inductorCalib = 1.17;
-
 void setup()
 {
     Serial.begin( 115200 ); /* prepare for possible serial debug */
@@ -757,7 +755,7 @@ void loop1()
                             
                             // 检查分子是否为正数（防止计算复数）
                             if (numerator > 0 && denominator > 0) {
-                                inductanceValue = 2 * sqrt(numerator / denominator) * inductorCalib;
+                                inductanceValue = 2 * inductorCalib * sqrt(numerator / denominator);
                                 
                                 // 转换为更合适的单位显示
                                 float displayValue = 0.0;

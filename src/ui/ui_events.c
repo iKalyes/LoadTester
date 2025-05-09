@@ -24,3 +24,13 @@ void LineMode(lv_event_t * e)
 {
 	// Your code here
 }
+
+void SinductorCalib(lv_event_t * e)
+{
+	// Your code here
+}
+
+void SpininductorCalib(lv_event_t * e)
+{
+	// Your code here
+}

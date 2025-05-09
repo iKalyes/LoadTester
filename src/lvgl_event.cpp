@@ -97,4 +97,12 @@ if ( event_code == LV_EVENT_VALUE_CHANGED &&  !lv_obj_has_state(target,LV_STATE_
 }
 }
 
-
+void ui_event_SinductorCalib( lv_event_t * e) {
+      lv_event_code_t event_code = lv_event_get_code(e);
+  
+  if ( event_code == LV_EVENT_VALUE_CHANGED) {
+        SpininductorCalib( e );
+        uint16_t inductorCalibA = lv_spinbox_get_value(ui_SinductorCalib);
+        inductorCalib = lv_spinbox_get_value(ui_SinductorCalib) / 100.0f;
+  }
+  }

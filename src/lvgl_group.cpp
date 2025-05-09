@@ -12,12 +12,6 @@ void lvgl_group_init()
     lv_group_add_obj(group, ui_LCRMode);
     lv_group_add_obj(group, ui_LoadMode);
     lv_group_add_obj(group, ui_LineMode);
+    lv_group_add_obj(group, ui_SinductorCalib);
 }
 
-void lvgl_group_to()
-{
-    lv_group_remove_all_objs(group);
-    
-    // 等待输入设备释放后再添加对象到组
-    lv_indev_wait_release(get_encoder_indev());
-}

@@ -17,6 +17,8 @@ lv_obj_t *ui_MeasurementVoltage;
 lv_obj_t *ui_MeasurementValue;
 lv_obj_t *ui_MeasurementUNIT;
 lv_obj_t *ui_VoltageChart;
+void ui_event_SinductorCalib( lv_event_t * e);
+lv_obj_t *ui_SinductorCalib;
 lv_obj_t *ui_FunctionDocke;
 lv_obj_t *ui_Function;
 lv_obj_t *ui_ColorFix;

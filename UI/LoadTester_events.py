@@ -22,3 +22,11 @@ def RUNSTOP(event_struct):
 def TESTTEST(event_struct):
     return
 
+
+def SinductorCalib(event_struct):
+    return
+
+
+def SpininductorCalib(event_struct):
+    return
+

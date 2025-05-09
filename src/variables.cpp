@@ -32,3 +32,5 @@ float LCRMode_Value = 0.0; // 元件值
 
 String capacitanceUnit;
 String inductanceUnit;
+
+float inductorCalib = 1.17;

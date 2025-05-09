@@ -26,4 +26,6 @@ extern float LCRMode_Value; // 元件值
 extern String capacitanceUnit;
 extern String inductanceUnit;
 
+extern float inductorCalib;
+
 #endif

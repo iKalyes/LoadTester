@@ -69,7 +69,7 @@ lv_obj_set_style_text_opa(ui_MeasurementUNIT, 255, LV_PART_MAIN| LV_STATE_DEFAUL
 lv_obj_set_style_text_font(ui_MeasurementUNIT, &ui_font_ASCII48, LV_PART_MAIN| LV_STATE_DEFAULT);
 
 ui_VoltageChart = lv_chart_create(ui_MeasurementDock);
-lv_obj_set_width( ui_VoltageChart, 310);
+lv_obj_set_width( ui_VoltageChart, 249);
 lv_obj_set_height( ui_VoltageChart, 56);
 lv_obj_set_x( ui_VoltageChart, 2 );
 lv_obj_set_y( ui_VoltageChart, -2 );
@@ -99,6 +99,21 @@ lv_obj_set_style_bg_color(ui_VoltageChart, lv_color_hex(0xFFFFFF), LV_PART_INDIC
 lv_obj_set_style_bg_opa(ui_VoltageChart, 0, LV_PART_INDICATOR| LV_STATE_DEFAULT);
 
 lv_obj_set_style_text_font(ui_VoltageChart, &lv_font_montserrat_8, LV_PART_TICKS| LV_STATE_DEFAULT);
+
+ui_SinductorCalib = lv_spinbox_create(ui_MeasurementDock);
+lv_obj_set_width( ui_SinductorCalib, 59);
+lv_obj_set_height( ui_SinductorCalib, 56);
+lv_obj_set_x( ui_SinductorCalib, 125 );
+lv_obj_set_y( ui_SinductorCalib, 56 );
+lv_obj_set_align( ui_SinductorCalib, LV_ALIGN_CENTER );
+lv_spinbox_set_digit_format( ui_SinductorCalib, 3, 1);
+lv_spinbox_set_range( ui_SinductorCalib, 0,500 );
+lv_spinbox_set_cursor_pos(ui_SinductorCalib, 3 - 1);
+lv_obj_set_style_radius(ui_SinductorCalib, 5, LV_PART_MAIN| LV_STATE_DEFAULT);
+lv_obj_set_style_border_color(ui_SinductorCalib, lv_color_hex(0x939CA3), LV_PART_MAIN | LV_STATE_DEFAULT );
+lv_obj_set_style_border_opa(ui_SinductorCalib, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
+lv_obj_set_style_border_width(ui_SinductorCalib, 1, LV_PART_MAIN| LV_STATE_DEFAULT);
+lv_obj_set_style_text_font(ui_SinductorCalib, &ui_font_ASCII18, LV_PART_MAIN| LV_STATE_DEFAULT);
 
 ui_FunctionDocke = lv_obj_create(ui_Main);
 lv_obj_remove_style_all(ui_FunctionDocke);
@@ -283,6 +298,7 @@ lv_obj_set_style_text_color(ui_TextIRUNSTOP, lv_color_hex(0xFFFFFF), LV_PART_MAI
 lv_obj_set_style_text_opa(ui_TextIRUNSTOP, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_text_font(ui_TextIRUNSTOP, &ui_font_CHN24, LV_PART_MAIN| LV_STATE_DEFAULT);
 
+lv_obj_add_event_cb(ui_SinductorCalib, ui_event_SinductorCalib, LV_EVENT_ALL, NULL);
 lv_obj_add_event_cb(ui_ContMode, ui_event_ContMode, LV_EVENT_ALL, NULL);
 lv_obj_add_event_cb(ui_LCRMode, ui_event_LCRMode, LV_EVENT_ALL, NULL);
 lv_obj_add_event_cb(ui_LoadMode, ui_event_LoadMode, LV_EVENT_ALL, NULL);

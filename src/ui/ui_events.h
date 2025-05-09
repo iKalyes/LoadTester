@@ -10,6 +10,7 @@
 extern "C" {
 #endif
 
+void SpininductorCalib(lv_event_t * e);
 void ContMode(lv_event_t * e);
 void LCRMode(lv_event_t * e);
 void LoadMode(lv_event_t * e);

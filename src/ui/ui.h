@@ -34,6 +34,8 @@ extern lv_obj_t *ui_MeasurementVoltage;
 extern lv_obj_t *ui_MeasurementValue;
 extern lv_obj_t *ui_MeasurementUNIT;
 extern lv_obj_t *ui_VoltageChart;
+void ui_event_SinductorCalib( lv_event_t * e);
+extern lv_obj_t *ui_SinductorCalib;
 extern lv_obj_t *ui_FunctionDocke;
 extern lv_obj_t *ui_Function;
 extern lv_obj_t *ui_ColorFix;

@@ -74,6 +74,7 @@ void display_init()
     ui_init();
     backlight_init();
     style_reset();
+    lv_spinbox_set_value(ui_SinductorCalib, inductorCalib * 100);
 }
 
 void style_reset()
