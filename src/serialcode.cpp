@@ -66,8 +66,6 @@ bool SerialMaster_SendCommand(const String &command) {
  * @param data 接收到的数据
  */
 void SerialMaster_ProcessReceivedData(const String &data) {
-    Serial.print("接收: ");
-    Serial.println(data);
     
     // 处理连接相关的消息
     if (data == "ConnectionCheck" && hostState == HOST_DISCONNECTED) {

@@ -20,3 +20,9 @@ uint8_t LoadNetType = 0;
 // 4:RL串联 5:RC并联
 // 6:RLC串联 7:LC串联 8:RC串联
 bool LCRMode_AC_OR_DC = false; // DC
+uint8_t LCRModeType = 0;
+// 0:开路
+// 1:电阻
+// 2:电容
+// 3:电感
+float LCRMode_Value = 0.0; // 元件值
