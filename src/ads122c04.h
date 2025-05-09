@@ -15,7 +15,7 @@
 #define RESET_PIN 11
 
 void ADS122C04_init();
-void ADS122C04_task(lv_timer_t *timer);
+void ADS122C04_task();
 
 
 void ADS122C04_DATA_INIT();

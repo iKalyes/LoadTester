@@ -19,8 +19,11 @@ extern float LineMode_Volt_Avg; // 平均电压
 extern bool LoadMode_AC_OR_DC;
 extern uint8_t LoadNetType;
 
-extern bool LCRMode_AC_OR_DC; // AC
+extern uint8_t LCRMode_AC_OR_DC_OR_LINE;
 extern uint8_t LCRModeType;
 extern float LCRMode_Value; // 元件值
+
+extern String capacitanceUnit;
+extern String inductanceUnit;
 
 #endif

@@ -10,4 +10,8 @@
 #include <serialcode.h>
 #include <variables.h>
 
+#include "pico/stdlib.h"
+#include "hardware/timer.h"
+#include "hardware/irq.h"
+
 #endif

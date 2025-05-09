@@ -19,10 +19,16 @@ uint8_t LoadNetType = 0;
 // 1:RL并联 2:LC并联 3:RLC并联
 // 4:RL串联 5:RC并联
 // 6:RLC串联 7:LC串联 8:RC串联
-bool LCRMode_AC_OR_DC = false; // DC
+uint8_t LCRMode_AC_OR_DC_OR_LINE = 0;
+// 0:DC
+// 1:AC
+// 2:LINE
 uint8_t LCRModeType = 0;
 // 0:开路
 // 1:电阻
 // 2:电容
 // 3:电感
 float LCRMode_Value = 0.0; // 元件值
+
+String capacitanceUnit;
+String inductanceUnit;

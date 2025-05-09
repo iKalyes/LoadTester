@@ -77,7 +77,6 @@ if ( event_code == LV_EVENT_PRESSED) {
       lv_obj_set_style_bg_color(ui_LineMode, lv_color_hex(0x0000FF), LV_PART_MAIN | LV_STATE_DEFAULT );
       lv_obj_set_style_text_color(ui_TextLineMode, lv_color_hex(0xFFFF00), LV_PART_MAIN | LV_STATE_DEFAULT );
       lv_label_set_text(ui_MeasurementValue, "OPEN");
-      lv_label_set_text(ui_MeasurementUNIT, "CM");
 
       lv_label_set_text(ui_Function, "故障距离");
       LineMode();
