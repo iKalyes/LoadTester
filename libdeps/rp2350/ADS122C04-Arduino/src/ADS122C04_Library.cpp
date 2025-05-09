@@ -178,7 +178,6 @@ ADS122C04_Voltages SFE_ADS122C04::readAllVoltages(uint8_t rate)
     start_time = millis();
     while((drdy == false) && (millis() < (start_time + ADS122C04_CONVERSION_TIMEOUT)))
     {
-      delay(1); // 不要过度频繁地查询总线
       drdy = checkDataReady();
     }
     
@@ -234,6 +233,125 @@ ADS122C04_Voltages SFE_ADS122C04::readAllVoltages(uint8_t rate)
   }
   
   return voltages;
+}
+
+// 读取单个指定通道的ADC电压值
+float SFE_ADS122C04::readVoltage(uint8_t channel, uint8_t rate)
+{
+  if (channel > 3) {
+    if (_printDebug == true) {
+      _debugPort->print(F("readVoltage: Invalid channel ("));
+      _debugPort->print(channel);
+      _debugPort->println(F("), must be 0-3"));
+    }
+    return 0.0; // 返回0表示错误
+  }
+
+  raw_voltage_union raw_v; // 用于转换uint32_t为int32_t的联合体
+  unsigned long start_time; // 记录开始时间以便设置超时
+  bool drdy = false; // DRDY (1 == 新数据已就绪)
+  uint8_t previousWireMode = _wireMode; // 记录先前的线路模式以便恢复
+  uint8_t previousRate = ADS122C04_Reg.reg1.bit.DR; // 记录先前的采样率以便恢复
+  bool configChanged = (_wireMode != ADS122C04_SINGLE_ENDED_MODE) || (previousRate != rate); // 仅在需要时更改配置
+  float voltage = 0.0; // 返回值
+  
+  // 配置ADS122C04为单端模式
+  if (configChanged)
+  {
+    if ((configureADCmode(ADS122C04_SINGLE_ENDED_MODE, rate)) == false)
+    {
+      if (_printDebug == true)
+      {
+        _debugPort->println(F("readVoltage: configureADCmode failed"));
+      }
+      return 0.0;
+    }
+  }
+  
+  // 单端多路复用器配置，根据通道选择
+  uint8_t muxConfig;
+  switch (channel) {
+    case 0: muxConfig = ADS122C04_MUX_AIN0_AVSS; break;
+    case 1: muxConfig = ADS122C04_MUX_AIN1_AVSS; break;
+    case 2: muxConfig = ADS122C04_MUX_AIN2_AVSS; break;
+    case 3: muxConfig = ADS122C04_MUX_AIN3_AVSS; break;
+    default: return 0.0; // 不应该到达这里
+  }
+  
+  // 配置多路复用器选择当前通道
+  if (setInputMultiplexer(muxConfig) == false)
+  {
+    if (_printDebug == true)
+    {
+      _debugPort->print(F("readVoltage: setInputMultiplexer failed for channel "));
+      _debugPort->println(channel);
+    }
+    if (configChanged) {
+      configureADCmode(previousWireMode, previousRate); // 尝试恢复先前模式
+    }
+    return 0.0;
+  }
+  
+  // 启动转换
+  start();
+  
+  // 等待DRDY变为有效
+  drdy = false;
+  start_time = millis();
+  while((drdy == false) && (millis() < (start_time + ADS122C04_CONVERSION_TIMEOUT)))
+  {
+    drdy = checkDataReady();
+  }
+  
+  // 检查是否超时
+  if (drdy == false)
+  {
+    if (_printDebug == true)
+    {
+      _debugPort->print(F("readVoltage: checkDataReady timed out for channel "));
+      _debugPort->println(channel);
+    }
+    if (configChanged) {
+      configureADCmode(previousWireMode, previousRate); // 尝试恢复先前模式
+    }
+    return 0.0;
+  }
+  
+  // 读取转换结果
+  if(ADS122C04_getConversionData(&raw_v.UINT32) == false)
+  {
+    if (_printDebug == true)
+    {
+      _debugPort->print(F("readVoltage: ADS122C04_getConversionData failed for channel "));
+      _debugPort->println(channel);
+    }
+    if (configChanged) {
+      configureADCmode(previousWireMode, previousRate); // 尝试恢复先前模式
+    }
+    return 0.0;
+  }
+  
+  // 处理24位有符号数的符号扩展
+  if ((raw_v.UINT32 & 0x00800000) == 0x00800000)
+    raw_v.UINT32 |= 0xFF000000;
+  
+  // 转换为电压值 - 使用内部参考电压2.048V且增益为1
+  // LSB值 = 2.048V / 2^23 = 0.24414 微伏
+  voltage = (float)raw_v.INT32 * 2.048 / 8388608.0; // 2^23 = 8388608
+  
+  // 恢复之前的线路模式
+  if (configChanged)
+  {
+    if ((configureADCmode(previousWireMode, previousRate)) == false)
+    {
+      if (_printDebug == true)
+      {
+        _debugPort->println(F("readVoltage: failed to restore previous mode"));
+      }
+    }
+  }
+  
+  return voltage;
 }
 
 //Returns true if device answers on _deviceAddress

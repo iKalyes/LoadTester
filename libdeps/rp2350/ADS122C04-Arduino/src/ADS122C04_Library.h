@@ -12,9 +12,32 @@ typedef struct {
   float voltage_AIN3;
 } ADS122C04_Voltages;
 
+// 状态机的状态枚举
+enum ADC_ReadState {
+  ADC_IDLE,               // 空闲状态
+  ADC_CONFIG,             // 配置ADC
+  ADC_CHANNEL_CONFIG,     // 配置通道
+  ADC_START_CONVERSION,   // 开始转换
+  ADC_WAIT_CONVERSION,    // 等待转换完成
+  ADC_READ_RESULT,        // 读取结果
+  ADC_COMPLETE            // 读取完成
+};
+
+// 创建一个新的结构来跟踪读取状态
+struct ADC_ReadContext {
+  ADC_ReadState state;           // 当前状态
+  uint8_t currentChannel;        // 当前读取的通道(0-3)
+  bool configChanged;            // 配置是否已更改
+  uint8_t previousWireMode;      // 之前的线路模式
+  uint8_t previousRate;          // 之前的采样率
+  uint8_t targetRate;            // 目标采样率
+  unsigned long startTime;       // 转换开始的时间
+  ADS122C04_Voltages voltages;   // 存储的电压值
+};
+
 // Single Conversion Timeout (millis)
 // The maximum time we will wait for DRDY to go valid for a single conversion
-#define ADS122C04_CONVERSION_TIMEOUT 75
+#define ADS122C04_CONVERSION_TIMEOUT 10
 
 // Define 2/3/4-Wire, Temperature and Raw modes
 #define ADS122C04_TEMPERATURE_MODE   0x0
@@ -263,6 +286,12 @@ public:
 
   // 读取所有四个单端ADC通道的电压值
   ADS122C04_Voltages readAllVoltages(uint8_t rate = ADS122C04_DATA_RATE_20SPS);
+  float readVoltage(uint8_t channel, uint8_t rate = ADS122C04_DATA_RATE_20SPS);
+  // 非阻塞读取所有通道电压值的状态机函数
+  void startReadAllVoltages(uint8_t rate);
+  bool processReadAllVoltages();
+  bool isReadComplete();
+  ADS122C04_Voltages getReadVoltages();
 
   // Read the raw signed 24-bit ADC value as int32_t
   // This uses the internal 2.048V reference with the gain set to 1
@@ -344,6 +373,8 @@ private:
   // 新增硬件控制标志
   bool _useHardwareDRDY = false; // 是否使用硬件DRDY
   bool _useHardwareReset = false; // 是否使用硬件复位
+
+  ADC_ReadContext _readContext;  // 读取状态机上下文
   
   // 静态中断处理相关
   static volatile bool _dataReady; // 数据就绪标志
