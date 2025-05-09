@@ -19,6 +19,8 @@ String pendingCommandResponse = "";
 const unsigned long CONNECTION_TIMEOUT = 1000;    // 连接超时(毫秒)
 const unsigned long COMMAND_TIMEOUT = 1000;       // 命令响应超时(毫秒)
 
+lv_timer_t* SerialMasterTimer;
+
 /**
  * 初始化串口通信
  */
@@ -27,6 +29,7 @@ void SerialMaster_Init() {
     Serial2.setTX(24); // 设置TX引脚
     Serial2.begin(115200); // 与从机通信的串口
     Serial.println("串口主机初始化完成");
+    SerialMasterTimer = lv_timer_create(SerialMaster_FRESH, 100, NULL); // 创建定时器
 }
 
 /**
@@ -87,7 +90,11 @@ void SerialMaster_ProcessReceivedData(const String &data) {
             isCommandPending = false;
             pendingCommandResponse = "ProcessSuccess";
         }
-        else if (data.startsWith("SET_SWEEP")) {
+        else if (data == "SET_SWEEP") {
+            isCommandPending = false;
+            pendingCommandResponse = "ProcessSuccess";
+        }
+        else if (data.startsWith("SET_SWEEP_MAX")) {
             // 处理SET_SWEEP命令，提取扫频时间
             int spaceIndex = data.indexOf(' ');
             if (spaceIndex > 0 && spaceIndex < data.length() - 1) {
@@ -179,7 +186,7 @@ uint16_t SerialMaster_GetSweepFreqTime() {
     return DDS_SweepFreqTimems;
 }
 
-void SerialMaster_FRESH()
+void SerialMaster_FRESH(lv_timer_t *timer)
 {
     if (hostState == HOST_CONNECTED)
     {

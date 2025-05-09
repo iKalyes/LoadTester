@@ -2,6 +2,24 @@
 
 SFE_ADS122C04 mySensor(SDA_PIN, SCL_PIN, DRDY_PIN, RESET_PIN);
 
+lv_chart_series_t * VoltageChart;
+lv_timer_t* DataRefreshTimer;
+lv_timer_t* DataTimer;
+
+int voltage_full;
+int voltage_int;
+int voltage_frac;
+
+int LineMode_Volt_full;
+int LineMode_Volt_int;
+int LineMode_Volt_frac;
+
+int ContMode_Volt_full;
+int ContMode_Volt_int;
+int ContMode_Volt_frac;
+
+float LineMode_Distance;
+
 void ADS122C04_init()
 {
     //mySensor.enableDebugging(); // 启用调试信息
@@ -14,17 +32,226 @@ void ADS122C04_init()
     mySensor.configureADCmode(ADS122C04_SINGLE_ENDED_MODE, ADS122C04_DATA_RATE_600SPS); // 配置为单端模式和20 SPS采样率
   
     mySensor.start();
+
+    DataTimer = lv_timer_create(ADS122C04_task, 1, NULL);
 }
 
-void ADS122C04_task()
+void ADS122C04_task(lv_timer_t *timer)
 {
+    static uint8_t currentRate = ADS122C04_DATA_RATE_600SPS; // 跟踪当前采样率
+    uint8_t targetRate;
+    
+    // 根据测量模式选择合适的采样率
+    switch (MeasureMode)
+    {
+    case 0: // 通断测试
+    case 3: // 故障距离
+        targetRate = ADS122C04_DATA_RATE_600SPS; // 需要更高的采样率
+        break;
+    case 1: // 元件测量
+    case 2: // 负载网络
+        targetRate = ADS122C04_DATA_RATE_175SPS; // 中等采样率即可
+        break;
+    default:
+        targetRate = currentRate; // 保持当前采样率
+        break;
+    }
+    
+    // 仅当采样率需要更改时才更新配置
+    if(currentRate != targetRate) {
+        mySensor.setDataRate(targetRate);
+        currentRate = targetRate;
+        mySensor.start(); // 重新启动转换
+    }
+    
+    // 检查数据是否就绪
     if(mySensor.isDataReady() == true)
     {
-        // 读取所有四个通道的电压
-        ADS122C04_Voltages voltages = mySensor.readAllVoltages(ADS122C04_DATA_RATE_600SPS); // 使用较高采样率
-        AIN0_DC_Volt = voltages.voltage_AIN0;
-        AIN1_AC_Volt = voltages.voltage_AIN1;
-        AIN2_Line_Volt = voltages.voltage_AIN2;
-        AIN3_Sys_Volt = voltages.voltage_AIN3;
+        switch (MeasureMode)
+        {
+            case 0: // 通断测试
+            AIN0_DC_Volt = mySensor.readVoltage(0, targetRate);
+            break;
+            case 1: // 元件测量
+            if(LCRMode_AC_OR_DC == false)
+            {
+                AIN0_DC_Volt = mySensor.readVoltage(0, targetRate);
+            }
+            else
+            {
+                AIN1_AC_Volt = mySensor.readVoltage(1, targetRate);
+            }
+            break;
+            case 2: // 负载网络
+            if(LoadMode_AC_OR_DC == false)
+            {
+                AIN0_DC_Volt = mySensor.readVoltage(0, targetRate);
+            }
+            else
+            {
+                AIN1_AC_Volt = mySensor.readVoltage(1, targetRate);
+            }
+            break;
+            case 3: // 故障距离
+            AIN2_Line_Volt = mySensor.readVoltage(2, targetRate);
+            break;
+            default:
+            break;
+    }       
+    }
+}
+
+void ADS122C04_DATA_INIT()
+{
+  VoltageChart = lv_chart_add_series(ui_VoltageChart, lv_color_hex(0X000000), LV_CHART_AXIS_PRIMARY_Y);
+  lv_chart_set_update_mode(ui_VoltageChart, LV_CHART_UPDATE_MODE_SHIFT);
+  lv_chart_set_point_count(ui_VoltageChart, 128);
+  DataRefreshTimer = lv_timer_create(ADS122C04_DATA_REFRESH, 1, NULL);
+}
+
+void ADS122C04_DATA_REFRESH(lv_timer_t *timer)
+{
+    switch (MeasureMode)
+    {
+    case 0:
+    if(RUNSTOP == true)
+    {
+      voltage_full = round(AIN0_DC_Volt * 1000000);
+      voltage_int = voltage_full / 1000000;
+      voltage_frac = voltage_full % 1000000;
+      lv_label_set_text_fmt(ui_MeasurementVoltage, "V-DC:%01d.%06dV", voltage_int, voltage_frac);
+      lv_chart_set_next_value(ui_VoltageChart, VoltageChart, voltage_full);
+      if(AIN0_DC_Volt < 0.15)
+      {
+        lv_label_set_text(ui_MeasurementValue, "SHORT");
+        lv_label_set_text(ui_MeasurementUNIT, " ");
+      }
+      else if(AIN0_DC_Volt > 0.15 && AIN0_DC_Volt < 0.95)
+      {
+        ContMode_Volt_full = round((1.000 - AIN0_DC_Volt) * 1000000);
+        ContMode_Volt_int = ContMode_Volt_full / 1000000;
+        ContMode_Volt_frac = ContMode_Volt_full % 1000000;
+        lv_label_set_text_fmt(ui_MeasurementValue, "%01d.%06d", ContMode_Volt_int, ContMode_Volt_frac);
+        lv_label_set_text(ui_MeasurementUNIT, "V");
+      }
+      else
+      {
+        lv_label_set_text(ui_MeasurementValue, "OPEN");
+        lv_label_set_text(ui_MeasurementUNIT, " ");
+      }
+    }
+      break;
+    case 1:
+    if(RUNSTOP == true)
+    {
+        if(LCRMode_AC_OR_DC == false)
+        {
+          voltage_full = round(AIN0_DC_Volt * 1000000);
+          voltage_int = voltage_full / 1000000;
+          voltage_frac = voltage_full % 1000000;
+          lv_label_set_text_fmt(ui_MeasurementVoltage, "V-DC:%01d.%06dV", voltage_int, voltage_frac);
+          lv_chart_set_next_value(ui_VoltageChart, VoltageChart, voltage_full);
+        }
+        else
+        {
+        voltage_full = round(AIN1_AC_Volt * 1000000);
+        voltage_int = voltage_full / 1000000;
+        voltage_frac = voltage_full % 1000000;
+        lv_label_set_text_fmt(ui_MeasurementVoltage, "V-AC:%01d.%06dV", voltage_int, voltage_frac);
+        lv_chart_set_next_value(ui_VoltageChart, VoltageChart, voltage_full);
+        }
+    }
+      break;
+      case 2:
+      if(RUNSTOP == true)
+      {
+        if(LoadMode_AC_OR_DC == false)
+        {
+          voltage_full = round(AIN0_DC_Volt * 1000000);
+          voltage_int = voltage_full / 1000000;
+          voltage_frac = voltage_full % 1000000;
+          lv_label_set_text_fmt(ui_MeasurementVoltage, "V-DC:%01d.%06dV", voltage_int, voltage_frac);
+          lv_chart_set_next_value(ui_VoltageChart, VoltageChart, voltage_full);
+        }
+        else
+        {
+          voltage_full = round(AIN1_AC_Volt * 1000000);
+          voltage_int = voltage_full / 1000000;
+          voltage_frac = voltage_full % 1000000;
+          lv_label_set_text_fmt(ui_MeasurementVoltage, "V-AC:%01d.%06dV", voltage_int, voltage_frac);
+          lv_chart_set_next_value(ui_VoltageChart, VoltageChart, voltage_full);
+        }
+        
+        // 添加静态变量记录上次显示的LoadNetType值
+        static uint8_t lastLoadNetType = 255; // 初始化为不可能的值，确保首次会更新
+        
+        // 只有当负载网络类型变化时才更新显示
+        if(lastLoadNetType != LoadNetType)
+        {
+          // 更新UI显示
+          switch(LoadNetType)
+          {
+              case 0: // 无网络
+              lv_label_set_text(ui_MeasurementValue, "OPEN");
+              break;
+              case 1: // RC串联
+              lv_label_set_text(ui_MeasurementValue, "RC串联");
+              break;
+              case 2: // LC串联
+              lv_label_set_text(ui_MeasurementValue, "LC串联");
+              break;
+              case 3: // RLC串联
+              lv_label_set_text(ui_MeasurementValue, "RLC串联");
+              break;
+              case 4: // RL串联
+              lv_label_set_text(ui_MeasurementValue, "RL串联");
+              break;
+              case 5: // RC并联
+              lv_label_set_text(ui_MeasurementValue, "RC并联");
+              break;
+              case 6: // RL并联
+              lv_label_set_text(ui_MeasurementValue, "RL并联");
+              break;
+              case 7: // LC并联
+              lv_label_set_text(ui_MeasurementValue, "LC并联");
+              break;
+              case 8: // RLC并联
+              lv_label_set_text(ui_MeasurementValue, "RLC并联");
+              break;
+              default:
+              lv_label_set_text(ui_MeasurementValue, "OPEN");
+              break;
+          }
+          
+          // 记录当前网络类型，用于下次比较
+          lastLoadNetType = LoadNetType;
+          
+        }
+      }
+      else
+      {
+        // 当RUNSTOP为false时重置lastLoadNetType，确保下次开始测量时会更新显示
+        static uint8_t lastLoadNetType = 255;
+      }
+      break;
+    case 3:
+    if(RUNSTOP == true)
+    {
+      voltage_full = round(AIN2_Line_Volt * 1000000);
+      voltage_int = voltage_full / 1000000;
+      voltage_frac = voltage_full % 1000000;
+      lv_label_set_text_fmt(ui_MeasurementVoltage, "V-LINE:%01d.%06dV", voltage_int, voltage_frac);
+      lv_chart_set_next_value(ui_VoltageChart, VoltageChart, voltage_full);
+
+      LineMode_Distance = (LineMode_Volt_Avg - 0.5955) / 0.012;
+      
+      LineMode_Volt_full = round(LineMode_Distance * 100);
+      LineMode_Volt_int = LineMode_Volt_full / 100;
+      LineMode_Volt_frac = LineMode_Volt_full % 100;
+      lv_label_set_text_fmt(ui_MeasurementValue, "%02d.%02d", LineMode_Volt_int, LineMode_Volt_frac);
+    }
+      break;
+    default:
+      break;
     }
 }

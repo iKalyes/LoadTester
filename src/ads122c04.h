@@ -5,9 +5,7 @@
 #include <Arduino.h>
 #include <lvgl.h>
 #include <Wire.h>
-
-#include <FreeRTOS.h>
-#include <task.h>
+#include "ui/ui.h"
 
 #include <variables.h>
 
@@ -17,6 +15,10 @@
 #define RESET_PIN 11
 
 void ADS122C04_init();
-void ADS122C04_task();
+void ADS122C04_task(lv_timer_t *timer);
+
+
+void ADS122C04_DATA_INIT();
+void ADS122C04_DATA_REFRESH(lv_timer_t *timer);
 
 #endif

@@ -12,3 +12,11 @@ uint16_t DDS_SweepFreqTimems = 0; // 储存从机返回的扫频时间
 bool RUNSTOP = true;
 
 float LineMode_Volt_Avg = 0.0; // 平均电压
+
+bool LoadMode_AC_OR_DC = false; // DC
+uint8_t LoadNetType = 0;
+// 0:无网络
+// 1:RL并联 2:LC并联 3:RLC并联
+// 4:RL串联 5:RC并联
+// 6:RLC串联 7:LC串联 8:RC串联
+bool LCRMode_AC_OR_DC = false; // DC

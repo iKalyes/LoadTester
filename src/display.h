@@ -21,7 +21,5 @@ void backlight_init();
 void style_reset();
 void lvgl_task_handler();
 
-void ADS122C04_DATA_CHART_INIT();
-void ADS122C04_DATA_REFRESH();
 
 #endif

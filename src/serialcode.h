@@ -14,6 +14,6 @@ void SerialMaster_Update();
 void SerialMaster_Disconnect();
 String SerialMaster_GetLastResponse();
 bool SerialMaster_IsCommandSuccessful();
-void SerialMaster_FRESH();
+void SerialMaster_FRESH(lv_timer_t *timer);
 
 #endif

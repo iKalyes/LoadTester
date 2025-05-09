@@ -2,17 +2,6 @@
 
 TFT_eSPI tft = TFT_eSPI(screenWidth, screenHeight); /* TFT instance */
 FT6336U touch_6336;
-lv_chart_series_t * VoltageChart;
-
-int voltage_full;
-int voltage_int;
-int voltage_frac;
-
-int LineMode_Volt_full;
-int LineMode_Volt_int;
-int LineMode_Volt_frac;
-
-float LineMode_Distance;
 
 /* Display flushing */
 void my_disp_flush( lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p )
@@ -111,74 +100,4 @@ void style_reset()
 void lvgl_task_handler()
 {
     lv_task_handler();
-}
-
-void ADS122C04_DATA_CHART_INIT()
-{
-  VoltageChart = lv_chart_add_series(ui_VoltageChart, lv_color_hex(0X000000), LV_CHART_AXIS_PRIMARY_Y);
-  lv_chart_set_update_mode(ui_VoltageChart, LV_CHART_UPDATE_MODE_SHIFT);
-  lv_chart_set_point_count(ui_VoltageChart, 128);
-}
-
-void ADS122C04_DATA_REFRESH()
-{
-    switch (MeasureMode)
-    {
-    case 0:
-    if(RUNSTOP == true)
-    {
-      voltage_full = round(AIN0_DC_Volt * 1000000);
-      voltage_int = voltage_full / 1000000;
-      voltage_frac = voltage_full % 1000000;
-      lv_label_set_text_fmt(ui_MeasurementVoltage, "V-DC:%01d.%06dV", voltage_int, voltage_frac);
-      lv_chart_set_next_value(ui_VoltageChart, VoltageChart, voltage_full);
-      if(AIN0_DC_Volt < 0.1)
-      {
-        lv_label_set_text(ui_MeasurementValue, "SHORT");
-      }
-      else
-      {
-        lv_label_set_text(ui_MeasurementValue, "OPEN");
-      }
-    }
-      break;
-    case 1:
-    if(RUNSTOP == true)
-    {
-      voltage_full = round(AIN1_AC_Volt * 1000000);
-      voltage_int = voltage_full / 1000000;
-      voltage_frac = voltage_full % 1000000;
-      lv_label_set_text_fmt(ui_MeasurementVoltage, "V-AC:%01d.%06dV", voltage_int, voltage_frac);
-      lv_chart_set_next_value(ui_VoltageChart, VoltageChart, voltage_full);
-    }
-      break;
-    case 2:
-    if(RUNSTOP == true)
-    {
-      voltage_full = round(AIN0_DC_Volt * 1000000);
-      voltage_int = voltage_full / 1000000;
-      voltage_frac = voltage_full % 1000000;
-      lv_label_set_text_fmt(ui_MeasurementVoltage, "V-DC:%01d.%06dV", voltage_int, voltage_frac);
-    }
-      break;
-    case 3:
-    if(RUNSTOP == true)
-    {
-      voltage_full = round(AIN2_Line_Volt * 1000000);
-      voltage_int = voltage_full / 1000000;
-      voltage_frac = voltage_full % 1000000;
-      lv_label_set_text_fmt(ui_MeasurementVoltage, "V-LINE:%01d.%06dV", voltage_int, voltage_frac);
-      lv_chart_set_next_value(ui_VoltageChart, VoltageChart, voltage_full);
-
-      LineMode_Distance = (LineMode_Volt_Avg - 0.5955) / 0.012;
-      
-      LineMode_Volt_full = round(LineMode_Distance * 100);
-      LineMode_Volt_int = LineMode_Volt_full / 100;
-      LineMode_Volt_frac = LineMode_Volt_full % 100;
-      lv_label_set_text_fmt(ui_MeasurementValue, "%02d.%02d", LineMode_Volt_int, LineMode_Volt_frac);
-    }
-      break;
-    default:
-      break;
-    }
 }

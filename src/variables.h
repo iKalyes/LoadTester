@@ -16,4 +16,9 @@ extern bool RUNSTOP;
 
 extern float LineMode_Volt_Avg; // 平均电压
 
+extern bool LoadMode_AC_OR_DC;
+extern uint8_t LoadNetType;
+
+extern bool LCRMode_AC_OR_DC; // AC
+
 #endif

@@ -3,6 +3,7 @@
         "bitset": "cpp",
         "string_view": "cpp",
         "regex": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "random": "cpp"
     }
 }
